@@ -12,6 +12,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { useSession } from 'next-auth/react'
+import { Upload } from "lucide-react";
+
 
 const Uploaddata = () => {
 
@@ -73,7 +75,9 @@ const Uploaddata = () => {
     <div className=''>
       <Dialog>
         <DialogTrigger>
-          <div className='bg-blue-600 rounded-md px-5 py-1 my-1 text-white  '>Update</div>
+          <div className='text-blue-600 rounded-md px-5 pt-1 my-1 ' title='update'>
+          <Upload className='h-5' />
+          </div>
         </DialogTrigger>
 
         <DialogContent className='h-5/6 overflow-auto mt-5 mb-5'>
