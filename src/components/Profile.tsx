@@ -1,10 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react';
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface HealthProfile {
     dob: string;
-    height: number; 
+    height: number;
     weight: number;
     allergies: string;
     bloodType: string;
@@ -54,7 +57,7 @@ export default function Profile() {
         fetchProfile();
     }, []);
 
-    const bmi =healthProfile ? bmiCalculate(healthProfile.height, healthProfile.weight): null;
+    const bmi = healthProfile ? bmiCalculate(healthProfile.height, healthProfile.weight) : null;
     const formattedDob = healthProfile?.dob ? formatDate(healthProfile.dob) : '';
 
 
@@ -63,75 +66,83 @@ export default function Profile() {
     if (error) return <p>{error}</p>;
 
     return (
-        <div>
-            <div className="pt-5 sm:px-10 w-full space-y-4">
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Date of Birth:</label>
-                    <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                        {formattedDob}
+        <div className="pt-5 sm:px-10 w-full space-y-4">
+
+            <div className="grid gap-6">
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label>Date of Birth</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">{formattedDob}</div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>BMI</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">{bmi}</div>
                     </div>
                 </div>
 
-                <div className='flex justify-evenly space-x-2 w-full'>
-                    <div className='w-1/2'>
-                        <label className="block text-sm font-medium text-gray-700">Height (cm):</label>
-                        <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                            {healthProfile?.height} cm
-                        </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label>Height (cm)</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">{healthProfile?.height ?? 'Not provided'} {healthProfile?.height ? 'cm' : ''}</div>
                     </div>
-
-                    <div className='w-1/2'>
-                        <label className="block text-sm font-medium text-gray-700">Weight (kg):</label>
-                        <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                            {healthProfile?.weight} kg
-                        </div>
+                    <div className="space-y-2">
+                        <Label>Weight (kg)</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">{healthProfile?.weight ?? 'Not provided'} {healthProfile?.weight ? 'kg' : ''}</div>
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">BMI:</label>
-                    <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                        {bmi || 'N/A'}
+                <div className="space-y-2">
+                    <Label>Allergies</Label>
+                    <div className="rounded-md border px-3 py-2 shadow-sm">
+                        {healthProfile?.allergies || 'None reported'}
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Allergies:</label>
-                    <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                        {healthProfile?.allergies || 'None'}
+                <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                        <Label>Blood Type</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">{healthProfile?.bloodType || 'Not provided'}</div>
                     </div>
-                </div>
-
-                <div className='flex justify-evenly space-x-2 w-full'>
-                    <div className='w-1/2'>
-                        <label className="block text-sm font-medium text-gray-700">Blood Type:</label>
-                        <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                            {healthProfile?.bloodType}
-                        </div>
-                    </div>
-
-                    <div className='w-1/2'>
-                        <label className="block text-sm font-medium text-gray-700">Blood Sugar Level (mg/dL):</label>
-                        <div className="mt-1 block w-full rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                            {healthProfile?.bloodSugarLevel} mg/dL
+                    <div className="space-y-2">
+                        <Label>Blood Sugar Level (mg/dL)</Label>
+                        <div className="rounded-md border px-3 py-2 shadow-sm">
+                            {healthProfile?.bloodSugarLevel ? `${healthProfile?.bloodSugarLevel} mg/dL` : 'Not provided'}
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <label className="block text-sm font-medium text-gray-700">Medical History:</label>
-                    <div className="mt-1 block w-full text-sm max-h-48 overflow-hidden rounded-md border border-neutral-200 shadow-sm py-2 px-2 bg-white">
-                        {healthProfile?.medicalHistory || 'No significant medical history'}
-                    </div>
+                <div className="space-y-2">
+                    <Label>Medical History</Label>
+                    <ScrollArea className="h-[100px] rounded-md border">
+                        <div className="p-3 text-sm">
+                            {healthProfile?.medicalHistory || 'No significant medical history reported'}
+                        </div>
+                    </ScrollArea>
                 </div>
 
-                <div className="flex items-center">
-                    <label className="block text-sm font-medium text-gray-700">Insurance:</label>
-                    <div className="ml-2 block font-semibold text-gray-700">
-                        {healthProfile?.hasInsurance ? 'Yes' : 'No'}
-                    </div>
+                <div className="flex items-center justify-between">
+                    <Label>Insurance</Label>
+                    <Badge
+                        variant="destructive"
+                        className={
+                            healthProfile?.hasInsurance === true
+                                ? 'bg-green-600 text-white'
+                                : healthProfile?.hasInsurance === false
+                                    ? 'bg-red-600 text-white'
+                                    : 'bg-gray-500 text-white'
+                        }
+                    >
+                        {healthProfile?.hasInsurance === true
+                            ? 'Insured'
+                            : healthProfile?.hasInsurance === false
+                                ? 'Uninsured'
+                                : 'Not specified'}
+                    </Badge>
+
                 </div>
             </div>
         </div>
     );
 }
+
+

@@ -7,50 +7,82 @@ export interface UserSummary {
 }
 
 const Summary = () => {
-    const [summary, setSummary] = useState('This holds your medical history, which will be imported from the database.');
+    const [summary, setSummary] = useState<UserSummary['summary']>('This holds your medical history, which will be imported from the database.');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
 
     useEffect(() => {
         const fetchSummary = async () => {
             setLoading(true);
+            setError(null);
             try {
                 const response = await fetch('/api/summary');
                 if (!response.ok) {
                     throw new Error('Failed to fetch summary');
                 }
                 const data: UserSummary = await response.json();
-                setSummary(data.summary); 
-            } catch (error: any) {
-                setError(error.message);
+                setSummary(data.summary);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    setError(error.message);
+                } else {
+                    setError('An unknown error occurred');
+                }
                 console.error('Error fetching summary:', error);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchSummary();
     }, []);
 
-
     const handleRefresh = async () => {
         setLoading(true);
+        setError(null);
         try {
-            const response = await fetch('/api/chat-gpt');
-            if (response.ok) {
-                const data = await response.json();
-                setSummary(data.summary);
-            } else {
-                console.error('Failed to fetch summary');
+            const response = await fetch('/api/gemini');
+            if (!response.ok) {
+                throw new Error('Failed to fetch summary');
             }
-        } catch (error) {
+            const data: UserSummary = await response.json();
+            setSummary(data.summary);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('An unknown error occurred');
+            }
             console.error('Error fetching summary:', error);
         } finally {
             setLoading(false);
         }
     };
 
+    const formatSummary = (text: string) => {
+        const lines = text.replace(/\*/g, '').split('\n').filter(line => line.trim());
+
+        return (
+            <ul style={{ listStyleType: 'none', paddingLeft: '24px' }}>
+                {lines.map((line, index) => {
+
+                    return (
+                        <li key={index} style={{ listStyleType: 'disc', paddingLeft: '10px' }}>
+                            {line.trim()}
+                        </li>
+                    );
+
+                })}
+            </ul>
+        );
+    };
+
+
+
+
+
     return (
-        <div className="w-full text-wrap overflow-hidden ring-offset-0 ring-blue-100 hover:ring-1 rounded-md px-4 divide-y divide-zinc-200 transition hover:shadow-lg">
+        <div>
             <div className='my-2 flex justify-between'>
                 <div className="text-xl font-semibold">Summary</div>
                 <button className='font-extrabold' title="refresh" onClick={handleRefresh}>
@@ -58,7 +90,15 @@ const Summary = () => {
                 </button>
             </div>
             <div className="text-wrap py-2 align-middle text-zinc-800">
-                {loading ? <div>Loading...</div> : summary}
+                {loading ? (
+                    <div>Loading...</div>
+                ) : error ? (
+                    <div className="text-red-600">{error}</div>
+                ) : (
+                    <ul>
+                        {formatSummary(summary)}
+                    </ul>
+                )}
             </div>
         </div>
     );

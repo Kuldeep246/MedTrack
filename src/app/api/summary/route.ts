@@ -14,13 +14,18 @@ export async function GET(req: NextRequest) {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
             select: { summary: true },  
+            
         });
 
         if (!user) {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        return NextResponse.json(user.summary, { status: 200 });
+        const summaryResponse = user.summary.trim() === "" 
+            ? "No medical data updated" 
+            : user.summary;
+
+        return NextResponse.json({ summary: summaryResponse }, { status: 200 });
     } catch (error) {
         console.error('Error fetching entries:', error);
         return NextResponse.json({ error: 'Error fetching entries' }, { status: 500 });

@@ -16,7 +16,18 @@ export async function GET(req: NextRequest) {
         });
 
         if (!healthProfile) {
-            return NextResponse.json({ message: "Profile not found" }, { status: 404 });
+            const dummyHealthProfile = {
+                dob: 'Not provided',               
+                height: 0,                         
+                weight: 0,                         
+                allergies: 'Not provided',         
+                bloodType: 'Not provided',         
+                bloodSugarLevel: 0,               
+                medicalHistory: 'Not provided',    
+                hasInsurance: false,                
+            };
+        
+            return NextResponse.json(dummyHealthProfile, { status: 200 });
         }
 
         return NextResponse.json(healthProfile, { status: 200 });

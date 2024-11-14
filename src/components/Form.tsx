@@ -13,6 +13,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { useSession } from 'next-auth/react'
+import { Button } from './ui/button'
 
 const Form = () => {
 
@@ -51,12 +52,12 @@ const Form = () => {
     return (
         <div>
             <Dialog>
-                <div className='md:h-60 h-48 pt-3   divide-y divide-gray-200 bg-white rounded-md flex flex-col items-center justify-center shadow transition hover:shadow-lg'>
-                    <DialogTrigger>
-                        <PlusIcon className='h-12 w-12  opacity-70' />
-                    </DialogTrigger>
-                    <div className=' w-full lg:pt-2 py-2 items-center justify-center flex'>Add medical Records</div>
-                </div>
+                <DialogTrigger >
+                    <Button className="w-full sm:w-auto">
+                        <PlusIcon className="mr-2 h-4 w-4" />
+                        Add New File
+                    </Button>
+                </DialogTrigger>
 
                 <DialogContent>
                     <DialogHeader>
