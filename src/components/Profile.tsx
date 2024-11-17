@@ -47,7 +47,7 @@ export default function Profile() {
                 } else {
                     setError('Failed to fetch health profile');
                 }
-            } catch (err) {
+            } catch {
                 setError('Error fetching health profile');
             } finally {
                 setLoading(false);
@@ -56,6 +56,7 @@ export default function Profile() {
 
         fetchProfile();
     }, []);
+
 
     const bmi = healthProfile ? bmiCalculate(healthProfile.height, healthProfile.weight) : null;
     const formattedDob = healthProfile?.dob ? formatDate(healthProfile.dob) : '';
