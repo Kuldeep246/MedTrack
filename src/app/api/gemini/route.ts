@@ -6,7 +6,7 @@ import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
 
-export async function GET(req: Request): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
     const session = await getServerSession(authOptions);
     if (!session || !session.user?.id) {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });

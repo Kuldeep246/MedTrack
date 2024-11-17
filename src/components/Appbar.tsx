@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react'
 
 export const Appbar = () => {
 
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const isLoggedIn = status === "authenticated";
 
   return <div className="sticky h-14 inset-x-0 top-0 z-30 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">

@@ -2,7 +2,7 @@
 import Link from "next/link";
 import Form from "./Form";
 import { useEffect, useState } from "react";
-import { TrashIcon, PlusIcon, PencilIcon, EyeIcon } from 'lucide-react'
+import { TrashIcon, PencilIcon, EyeIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
