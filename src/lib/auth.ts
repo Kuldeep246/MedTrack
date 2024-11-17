@@ -1,11 +1,12 @@
+import type { SessionStrategy } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
-import { SessionStrategy } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db";
 
-export const authOptions  = {
-    adapter: PrismaAdapter(prisma),
-    providers: [
+export const authOptions = {
+  adapter: PrismaAdapter(prisma) as Adapter,
+  providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
@@ -51,7 +52,7 @@ export const rateLimit = (userId: string, rateLimitCount: number, rateLimitInter
   );
 
   if (userLimiter.timestamps.length >= rateLimitCount) {
-    return false; 
+    return false;
   }
 
   userLimiter.timestamps.push(now);
