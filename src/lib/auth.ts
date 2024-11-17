@@ -1,12 +1,20 @@
+import  { DefaultSession, NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db";
-import type { Adapter } from "next-auth/adapters";
-import { SessionStrategy } from "next-auth";
-import { UserSession, UserToken } from "./types"; 
 
-export const authOptions = {
-  adapter: PrismaAdapter(prisma) as Adapter,
+interface ExtendedSession extends DefaultSession {
+  user: {
+    id: string;
+    admin: boolean;
+    name: string | null;
+    email: string | null;
+    image: string | null;
+  } & DefaultSession["user"]
+}
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -18,29 +26,35 @@ export const authOptions = {
   pages: {
     signIn: "/auth",
   },
-  session: { strategy: "jwt" as SessionStrategy },
+  session: { strategy: "jwt" },
   callbacks: {
-    async session({ session, token }: { token: any; session: any }) {
+    async session({ session, token }): Promise<ExtendedSession> {
       if (!token.sub) {
         throw new Error("Token sub is missing");
       }
-      const user = await prisma.user.findUnique({
+      const dbUser = await prisma.user.findUnique({
         where: { id: token.sub },
+        select: { id: true, name: true, email: true, image: true, admin: true },
       });
 
-      if (!user) {
+      if (!dbUser) {
         throw new Error(`User with ID ${token.sub} not found`);
       }
 
-      if (session.user) {
-        session.user.id = token.sub;
-      }
-
-      return session;
+      return {
+        ...session,
+        user: {
+          ...session.user,
+          id: dbUser.id,
+          name: dbUser.name ?? null,
+          email: dbUser.email ?? null,
+          image: dbUser.image ?? null,
+          admin: dbUser.admin ?? false,
+        },
+      };
     },
   },
 };
-
 
 interface RateLimiter {
   timestamps: Date[];
