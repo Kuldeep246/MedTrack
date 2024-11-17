@@ -1,9 +1,9 @@
-import type { SessionStrategy } from "next-auth";
-import type { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db";
-
+import type { Adapter } from "next-auth/adapters";
+import { SessionStrategy } from "next-auth";
+import { UserSession, UserToken } from "./types"; 
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -20,33 +20,38 @@ export const authOptions = {
   },
   session: { strategy: "jwt" as SessionStrategy },
   callbacks: {
-    async jwt({ token }: any) {
-      return token;
-    },
-    async session({ session, token }: any) {
+    async session({ session, token }: { token: any; session: any }) {
+      if (!token.sub) {
+        throw new Error("Token sub is missing");
+      }
       const user = await prisma.user.findUnique({
-        where: {
-          id: token.sub,
-        },
+        where: { id: token.sub },
       });
-      if (token) {
-        session.accessToken = token.accessToken;
-        session.user.id = token.sub;
-        session.user.admin = user?.admin;
+
+      if (!user) {
+        throw new Error(`User with ID ${token.sub} not found`);
       }
 
+      if (session.user) {
+        session.user.id = token.sub;
+      }
 
       return session;
     },
   },
 };
 
+
 interface RateLimiter {
   timestamps: Date[];
 }
 const userRateLimits = new Map<string, RateLimiter>();
 
-export const rateLimit = (userId: string, rateLimitCount: number, rateLimitInterval: number): boolean => {
+export const rateLimit = (
+  userId: string,
+  rateLimitCount: number,
+  rateLimitInterval: number
+): boolean => {
   const now = new Date();
   const userLimiter = userRateLimits.get(userId) ?? { timestamps: [] };
 
