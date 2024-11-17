@@ -1,4 +1,4 @@
-import {  NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/db';
 import { authOptions } from '@/lib/auth';
@@ -13,8 +13,7 @@ export async function GET() {
 
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
-            select: { summary: true },  
-            
+            select: { summary: true },
         });
 
         if (!user) {

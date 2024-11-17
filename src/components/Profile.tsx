@@ -1,9 +1,8 @@
 'use client'
-
 import { useEffect, useState } from 'react';
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface HealthProfile {
     dob: string;
@@ -21,6 +20,7 @@ function bmiCalculate(height: number, weight: number) {
     const bmi = weight / (heightInMeters * heightInMeters);
     return parseFloat(bmi.toFixed(2));
 }
+
 const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -57,18 +57,14 @@ export default function Profile() {
         fetchProfile();
     }, []);
 
-
     const bmi = healthProfile ? bmiCalculate(healthProfile.height, healthProfile.weight) : null;
     const formattedDob = healthProfile?.dob ? formatDate(healthProfile.dob) : '';
-
-
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>{error}</p>;
 
     return (
         <div className="pt-5 sm:px-10 w-full space-y-4">
-
             <div className="grid gap-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
@@ -139,11 +135,8 @@ export default function Profile() {
                                 ? 'Uninsured'
                                 : 'Not specified'}
                     </Badge>
-
                 </div>
             </div>
         </div>
     );
 }
-
-
