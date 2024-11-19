@@ -1,20 +1,11 @@
-import  { DefaultSession, NextAuthOptions } from "next-auth";
+import type { Adapter } from "next-auth/adapters";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db";
+import { SessionStrategy } from "next-auth";
 
-interface ExtendedSession extends DefaultSession {
-  user: {
-    id: string;
-    admin: boolean;
-    name: string | null;
-    email: string | null;
-    image: string | null;
-  } & DefaultSession["user"]
-}
-
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+export const authOptions = {
+  adapter: PrismaAdapter(prisma) as Adapter,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -26,35 +17,29 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth",
   },
-  session: { strategy: "jwt" },
+  session: { strategy: "jwt" as SessionStrategy },
+
   callbacks: {
-    async session({ session, token }): Promise<ExtendedSession> {
-      if (!token.sub) {
-        throw new Error("Token sub is missing");
-      }
-      const dbUser = await prisma.user.findUnique({
-        where: { id: token.sub },
-        select: { id: true, name: true, email: true, image: true, admin: true },
-      });
-
-      if (!dbUser) {
-        throw new Error(`User with ID ${token.sub} not found`);
-      }
-
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: dbUser.id,
-          name: dbUser.name ?? null,
-          email: dbUser.email ?? null,
-          image: dbUser.image ?? null,
-          admin: dbUser.admin ?? false,
+    async jwt({ token  }: any) {
+      
+      return token;
+    },
+    async session({ session, token }: any) {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: token.sub,
         },
-      };
+      });
+      console.log(session);
+      if (token) {
+        session.user.id = token.sub;
+        session.user.admin = user?.admin||false;
+      }
+      return session;
     },
   },
 };
+
 
 interface RateLimiter {
   timestamps: Date[];
