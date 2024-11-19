@@ -32,7 +32,6 @@ export const authOptions = {
           id: token.sub,
         },
       });
-      console.log(session);
       if (token) {
         session.user.id = token.sub;
         session.user.admin = user?.admin||false;

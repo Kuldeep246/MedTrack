@@ -20,9 +20,10 @@ export async function GET() {
             return NextResponse.json({ message: "User not found" }, { status: 404 });
         }
 
-        const summaryResponse = user.summary.trim() === "" 
-            ? "No medical data updated" 
+        const summaryResponse = user.summary == null || user.summary.trim() === ""
+            ? "No medical data updated"
             : user.summary;
+
 
         return NextResponse.json({ summary: summaryResponse }, { status: 200 });
     } catch (error) {
