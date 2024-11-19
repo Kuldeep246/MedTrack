@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import prisma from "@/db";
 import { SessionStrategy } from "next-auth";
+import { JWT } from "next-auth/jwt";
 
 export const authOptions = {
   adapter: PrismaAdapter(prisma) as Adapter,
@@ -20,11 +21,12 @@ export const authOptions = {
   session: { strategy: "jwt" as SessionStrategy },
 
   callbacks: {
-    async jwt({ token  }: any) {
+    async jwt({ token  }: {token:JWT}) {
       
       return token;
     },
-    async session({ session, token }: any) {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
+    async session({ session, token }: { session:any, token:JWT }) {
       const user = await prisma.user.findUnique({
         where: {
           id: token.sub,
