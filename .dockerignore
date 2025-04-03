@@ -1,0 +1,32 @@
+# Git files
+.git
+.gitignore
+
+# Docker files
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Dependencies (installed in the container)
+node_modules
+
+# Build cache and output (we copy specific parts from build stage)
+.next
+
+# Environment variables file (IMPORTANT - Never commit secrets!)
+.env
+.env*.local
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# IDE config
+.vscode
+.idea
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

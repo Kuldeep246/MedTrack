@@ -38,6 +38,7 @@ model User {
   id            String         @id @default(cuid()) @map("_id")
   name          String?
   email         String?        @unique
+  password      String?
   emailVerified DateTime?
   image         String?
   admin         Boolean        @default(false)

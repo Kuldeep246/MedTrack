@@ -1,0 +1,40 @@
+# docker-compose.yml
+version: '3.9' # Use a recent version
+
+services:
+  app:
+    # Build the Docker image using the Dockerfile in the current directory (.)
+    build: .
+    container_name: healthcare-app # Optional: specify a name for the container
+
+    # Forward the exposed port 3000 from the container to port 3000 on the host machine
+    ports:
+      - "3000:3000"
+
+    # Load environment variables from the .env file in the current directory
+    # IMPORTANT: Ensure your .env file contains DATABASE_URL and any other
+    # runtime secrets/configurations needed by Next.js, NextAuth, Prisma, etc.
+    env_file:
+      - .env
+
+    # Optional: Set a restart policy
+    # 'unless-stopped': restarts the container unless it was manually stopped.
+    # 'always': always restarts the container if it stops.
+    # 'no': never restarts (default).
+    restart: unless-stopped
+
+    # Optional: Add healthcheck if needed (basic example checking the port)
+    # healthcheck:
+    #   test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+
+# Optional: Define volumes if you need persistent storage (e.g., for uploads)
+# volumes:
+#   app_data:
+
+# Optional: Define networks if you need custom networking
+# networks:
+#   app_network:
+#     driver: bridge
