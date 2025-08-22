@@ -3,6 +3,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../lib/auth';
 import prisma from '@/db';
 import { GoogleGenerativeAI, GenerativeModel } from "@google/generative-ai";
+import { decrypt, encrypt } from '@/lib/crypto';
+
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY as string);
 
@@ -21,7 +23,7 @@ export async function GET(): Promise<NextResponse> {
         return NextResponse.json({ message: 'User not found' }, { status: 404 });
     }
 
-    const entriesText = user.entries.map((entry) => entry.content).join('    ').slice(0, 4000);
+    const entriesText = user.entries.map((entry) => decrypt(entry.content)).join('    ').slice(0, 4000); 
 
     try {
         const model: GenerativeModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -31,7 +33,7 @@ export async function GET(): Promise<NextResponse> {
 
         await prisma.user.update({
             where: { id: user.id },
-            data: { summary },
+            data: { summary: encrypt(summary) },
         });
 
         return NextResponse.json({ summary }, { status: 200 });

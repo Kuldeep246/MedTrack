@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/db';
 import { authOptions } from '@/lib/auth';
+import { encrypt } from '@/lib/crypto'; // <-- IMPORT
+
 
 export async function POST(req: NextRequest) {
     try {
@@ -12,11 +14,13 @@ export async function POST(req: NextRequest) {
         }
 
         const body = await req.json();
+        const encryptedContent = encrypt(body.content);
+
 
         const entry = await prisma.entry.create({
             data: {
                 title: body.title,     
-                content: body.content,   
+                content: encryptedContent, 
                 userId: session.user.id, 
             },
         });

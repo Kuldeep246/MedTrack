@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import prisma from '@/db';
 import { authOptions } from '@/lib/auth';
+import { decrypt } from '@/lib/crypto'; // <-- IMPORT
+
 
 export async function GET() {
     try {
@@ -13,8 +15,12 @@ export async function GET() {
         const entries = await prisma.entry.findMany({
             where: { userId: session.user.id }, 
         });
+        const decryptedEntries = entries.map(entry => ({
+            ...entry,
+            content: decrypt(entry.content) // <-- DECRYPT
+        }));
 
-        return NextResponse.json(entries, { status: 200 });
+        return NextResponse.json(decryptedEntries, { status: 200 });
     } catch (error) {
         console.error('Error fetching entries:', error);
         return NextResponse.json({ error: 'Error fetching entries' }, { status: 500 });

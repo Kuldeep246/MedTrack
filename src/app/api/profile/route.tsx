@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/db';
+import { decrypt, encrypt } from '@/lib/crypto'; 
+
 
 export async function GET() {
     try {
@@ -29,8 +31,12 @@ export async function GET() {
         
             return NextResponse.json(dummyHealthProfile, { status: 200 });
         }
-
-        return NextResponse.json(healthProfile, { status: 200 });
+        const decryptedProfile = {
+            ...healthProfile,
+            allergies: decrypt(healthProfile.allergies),
+            medicalHistory: decrypt(healthProfile.medicalHistory),
+        };
+        return NextResponse.json(decryptedProfile, { status: 200 });
     } catch (error) {
         console.error('Error fetching health profile:', error);
         return NextResponse.json({ error: 'Error fetching health profile' }, { status: 500 });
@@ -48,16 +54,18 @@ export async function POST(req: NextRequest) {
         const data = await req.json();
         const { dob, height, weight, allergies, bloodType, bloodSugarLevel, medicalHistory, hasInsurance } = data;
 
+        const encryptedAllergies = encrypt(allergies);
+        const encryptedMedicalHistory = encrypt(medicalHistory);
+
         const healthProfile = await prisma.healthProfile.upsert({
             where: { userId: session.user.id },
             update: {
                 dob: new Date(dob),  
                 height: parseInt(height, 10), 
                 weight: parseInt(weight, 10), 
-                allergies,
-                bloodType,
+                allergies:encryptedAllergies,
                 bloodSugarLevel: parseInt(bloodSugarLevel, 10), 
-                medicalHistory,
+                medicalHistory:encryptedMedicalHistory,
                 hasInsurance
             },
             create: {
@@ -65,10 +73,10 @@ export async function POST(req: NextRequest) {
                 dob: new Date(dob), 
                 height: parseInt(height, 10), 
                 weight: parseInt(weight, 10),  
-                allergies,
+                allergies:encryptedAllergies,
                 bloodType,
                 bloodSugarLevel: parseInt(bloodSugarLevel, 10), 
-                medicalHistory,
+                medicalHistory:encryptedMedicalHistory,
                 hasInsurance
             },
         });
